@@ -20,4 +20,4 @@ function removeCard(evt) {
 initialCards.forEach(initialCard => {
   const card = createCard(initialCard, removeCard);
   cardsContainer.append(card);
-});5
+});
