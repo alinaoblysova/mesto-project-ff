@@ -30,24 +30,3 @@ export const initialCards = [
       alt: "Здесь все предсказуемо. Задания в Практикуме – спонсор вашего прыжка с заснеженных возвышенностей прямиком в замерзший Байкал (головой вниз)",
     }
 ];
-
-export function createCard(initialCard, removeCallback, likeCallback, openCallback) {
-  const cardTemplate = document.querySelector('#card-template').content;
-  const cardElement = cardTemplate.querySelector('.card').cloneNode(true);
-  const cardImage = cardElement.querySelector('.card__image');
-  cardImage.src = initialCard.link;
-  cardImage.alt = initialCard.alt;
-  cardElement.querySelector('.card__title').textContent = initialCard.name;
-  cardElement.querySelector('.card__delete-button').addEventListener('click', removeCallback);
-  cardElement.querySelector('.card__like-button').addEventListener('click', likeCallback);
-  cardImage.addEventListener('click', openCallback);
-  return cardElement;
-}
-
-export function removeCard(evt) {
-  evt.target.closest('.card').remove();
-}
-
-export function likeCard(evt) {
-  evt.target.classList.toggle('card__like-button_is-active');
-}
