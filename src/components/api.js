@@ -15,67 +15,46 @@ const getResponseData = (response) => {
   };
 };
 
+const sendRequest = (endpoint, requestMethod = 'GET', requestBody = '') => {
+  if (requestMethod === 'POST' || requestMethod === 'PATCH') {
+    return fetch(`${config.baseUrl}${endpoint}`, {
+      method: requestMethod,
+      headers: config.headers,
+      body: JSON.stringify(requestBody),
+    }).then(getResponseData);
+  }
+  else {
+    return fetch(`${config.baseUrl}${endpoint}`, {
+      method: requestMethod,
+      headers: config.headers,
+    }).then(getResponseData);
+  };
+};
+
 export const getUserData = () => {
-  return fetch(`${config.baseUrl}/users/me`, {
-    headers: config.headers,
-  })
-    .then(response => getResponseData(response));
+  return sendRequest('/users/me');
 };
 
 export const getInitialCards = () => {
-  return fetch(`${config.baseUrl}/cards`, {
-    headers: config.headers,
-  })
-    .then(response => getResponseData(response));
+  return sendRequest('/cards');
 };
 
 export const updateUserData = (userName, userAbout) => {
-  return fetch(`${config.baseUrl}/users/me`, {
-    method: 'PATCH',
-    headers: config.headers,
-    body: JSON.stringify({
-      name: userName,
-      about: userAbout,
-    }),
-  })
-    .then(response => getResponseData(response));
+  return sendRequest('/users/me', 'PATCH', {name: userName, about: userAbout});
 };
 
 export const postCard = (cardName, cardLink) => {
-  return fetch(`${config.baseUrl}/cards`, {
-    method: 'POST',
-    headers: config.headers,
-    body: JSON.stringify({
-      name: cardName,
-      link: cardLink,
-    }),
-  })
-    .then(response => getResponseData(response));
+  return sendRequest('/cards', 'POST', {name: cardName, link: cardLink});
 };
 
 export const deleteCard = (cardID) => {
-  return fetch(`${config.baseUrl}/cards/${cardID}`, {
-    method: 'DELETE',
-    headers: config.headers,
-  })
-    .then(response => getResponseData(response));
+  return sendRequest(`/cards/${cardID}`, 'DELETE');
 };
 
 export const updateLike = (cardID, method) => {
-  return fetch(`${config.baseUrl}/cards/likes/${cardID}`, {
-    method: method,
-    headers: config.headers,
-  })
-    .then(response => getResponseData(response));
+  return sendRequest(`/cards/likes/${cardID}`, method);
 };
 
 export const updateAvatar = (avatarLink) => {
-  return fetch(`${config.baseUrl}/users/me/avatar`, {
-    method: 'PATCH',
-    headers: config.headers,
-    body: JSON.stringify({
-      avatar: avatarLink,
-    }),
-  })
-    .then(response => getResponseData(response));
+  return sendRequest(`/users/me/avatar`, 'PATCH', {avatar: avatarLink});
 };

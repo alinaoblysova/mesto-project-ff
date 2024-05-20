@@ -1,5 +1,6 @@
 export const profileImage = document.querySelector('.profile__image');
 export const cardsContainer = document.querySelector('.places__list');
+export const cardTemplate = document.querySelector('#card-template').content;
 // opening popup buttons
 export const editButton = document.querySelector('.profile__edit-button');
 export const addButton = document.querySelector('.profile__add-button');
@@ -13,9 +14,6 @@ export const imagePopup = document.querySelector('.popup_type_image');
 export const avatarPopup = document.querySelector('.popup_type_avatar');
 export const deletePopup = document.querySelector('.popup_type_delete');
 // popup buttons
-export const editPopupButton = editPopup.querySelector('.popup__button');
-export const newCardPopupButton = newCardPopup.querySelector('.popup__button');
-export const avatarPopupButton = avatarPopup.querySelector('.popup__button');
 export const deletePopupButton = deletePopup.querySelector('.popup__button');
 // image popup components
 export const imagePopupImage = imagePopup.querySelector('.popup__image');

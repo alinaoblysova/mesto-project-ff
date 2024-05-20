@@ -1,5 +1,5 @@
 import './pages/index.css';
-import { profileImage, cardsContainer, editButton, addButton, avatarButton, popups, editPopup, newCardPopup, imagePopup, avatarPopup, editPopupButton, newCardPopupButton, avatarPopupButton, imagePopupImage, imagePopupCaption, editForm, newCardForm, avatarForm, nameInput, descriptionInput, nameOutput, descriptionOutput} from './components/constants.js';
+import { profileImage, cardsContainer, editButton, addButton, avatarButton, popups, editPopup, newCardPopup, imagePopup, avatarPopup, imagePopupImage, imagePopupCaption, editForm, newCardForm, avatarForm, nameInput, descriptionInput, nameOutput, descriptionOutput} from './components/constants.js';
 import { createCard, removeCard, likeCard } from './components/card.js';
 import { openModal, closeModal } from './components/modal.js';
 import { validationConfig, enableValidation, clearValidation } from './components/validation.js';
@@ -9,35 +9,37 @@ let userID;
 
 function openImage(imageToBeOpened, cardTitle) {
   imagePopupImage.src = imageToBeOpened.src;
+  imagePopupImage.alt = cardTitle.textContent;
   imagePopupCaption.textContent = cardTitle.textContent;
   openModal(imagePopup);
 };
 
 function renderLoading(isLoading, button) {
   if (isLoading) {
-    button.textContent = "Сохранение...";
+    button.textContent = 'Сохранение...';
   }
   else {
-    button.textContent = "Сохранить";
+    button.textContent = 'Сохранить';
   };
 };
 
+function renderCard(card, method = 'prepend') {
+  const parameters = {card, removeCard, likeCard, openImage, userID};
+  const cardElement = createCard(parameters);
+  cardsContainer[method](cardElement);
+}
+
 Promise.all([getUserData(), getInitialCards()])
-  .then(results => {
-    const userData = results[0];
-    const initialCards = results[1];
+  .then(([userData, initialCards]) => {
     userID = userData._id;
     nameOutput.textContent = userData.name;
     descriptionOutput.textContent = userData.about;
     profileImage.setAttribute('style', `background-image: url('${userData.avatar}');`);
     initialCards.forEach(initialCard => {
-      const card = createCard(initialCard, removeCard, likeCard, openImage, userID);
-      cardsContainer.append(card);
+      renderCard(initialCard, 'append')
     });
   })
-  .catch(error => {
-    console.log(error);
-  });
+  .catch(console.error);
 
 editButton.addEventListener('click', () => {
   nameInput.value = nameOutput.textContent;
@@ -68,18 +70,16 @@ popups.forEach(popup => {
 
 function submitEditForm(evt) {
   evt.preventDefault();
-  renderLoading(true, editPopupButton);
+  renderLoading(true, evt.submitter); // слишком сложно, может, когда-нибудь я смогу это разобрать... в любом случае, спасибо, так выглядит гораздо лаконичней
   updateUserData(nameInput.value, descriptionInput.value)
     .then(userData => {
       nameOutput.textContent = userData.name;
       descriptionOutput.textContent = userData.about;
       closeModal(editPopup);
     })
-    .catch(error => {
-      console.log(error);
-    })
+    .catch(console.error)
     .finally(() => {
-      renderLoading(false, editPopupButton);
+      renderLoading(false, evt.submitter);
     });
 };
 
@@ -87,37 +87,32 @@ function submitNewCardForm(evt) {
   evt.preventDefault();
   const placeInput = newCardForm.elements.place_name;
   const linkInput = newCardForm.elements.link;
-  renderLoading(true, newCardPopupButton);
+  renderLoading(true, evt.submitter);
   postCard(placeInput.value, linkInput.value)
     .then(newCard => {
-      const card = createCard(newCard, removeCard, likeCard, openImage, userID);
-      cardsContainer.prepend(card);
+      renderCard(newCard);
       closeModal(newCardPopup);
       newCardForm.reset();
     })
-    .catch(error => {
-      console.log(error);
-    })
+    .catch(console.error)
     .finally(() => {
-      renderLoading(false, newCardPopupButton);
+      renderLoading(false, evt.submitter);
     });
 };
 
 function submitAvatarForm(evt) {
   evt.preventDefault();
   const avatarInput = avatarForm.elements.avatar;
-  renderLoading(true, avatarPopupButton);
+  renderLoading(true, evt.submitter);
   updateAvatar(avatarInput.value)
     .then(updatedUserData => {
       profileImage.setAttribute('style', `background-image: url('${updatedUserData.avatar}');`);
       closeModal(avatarPopup);
       avatarForm.reset();
     })
-    .catch(error => {
-      console.log(error);
-    })
+    .catch(console.error)
     .finally(() => {
-      renderLoading(false, avatarPopupButton);
+      renderLoading(false, evt.submitter);
     });
 };
 
