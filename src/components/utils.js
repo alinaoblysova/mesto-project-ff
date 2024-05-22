@@ -8,16 +8,16 @@ export function renderLoading(isLoading, button, buttonText, loadingText) {
 };
 
 export function handleSubmit(request, evt, loadingText = 'Сохранение...', button = '') {
-  const evtIsNotButton = evt !== '';
-  if (evtIsNotButton) {
+  const evtIsNotEmpty = evt !== '';
+  if (evtIsNotEmpty) {
     evt.preventDefault();
   };
-  const submitButton = evtIsNotButton ? evt.submitter : button;
+  const submitButton = evtIsNotEmpty ? evt.submitter : button;
   const initialText = submitButton.textContent;
   renderLoading(true, submitButton, initialText, loadingText);
   request()
     .then(() => {
-      if (evtIsNotButton) {
+      if (evtIsNotEmpty) {
         evt.target.reset();
       };
     })
