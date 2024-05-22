@@ -1,11 +1,13 @@
 import './pages/index.css';
-import { profileImage, cardsContainer, editButton, addButton, avatarButton, popups, editPopup, newCardPopup, imagePopup, avatarPopup, imagePopupImage, imagePopupCaption, editForm, newCardForm, avatarForm, nameInput, descriptionInput, nameOutput, descriptionOutput} from './components/constants.js';
-import { createCard, removeCard, likeCard } from './components/card.js';
+import { profileImage, cardsContainer, editButton, addButton, avatarButton, popups, editPopup, newCardPopup, imagePopup, avatarPopup, deletePopup, deletePopupButton, imagePopupImage, imagePopupCaption, editForm, newCardForm, avatarForm, nameInput, descriptionInput, nameOutput, descriptionOutput} from './components/constants.js';
+import { createCard, likeCard } from './components/card.js';
 import { openModal, closeModal } from './components/modal.js';
 import { validationConfig, enableValidation, clearValidation } from './components/validation.js';
-import { getUserData, getInitialCards, updateUserData, postCard, updateAvatar } from './components/api.js';
+import { getUserData, getInitialCards, updateUserData, postCard, deleteCard, updateAvatar } from './components/api.js';
+import { renderLoading, handleSubmit} from './components/utils.js';
 
 let userID;
+let cardID, cardDeleteButton;
 
 function openImage(imageToBeOpened, cardTitle) {
   imagePopupImage.src = imageToBeOpened.src;
@@ -14,17 +16,14 @@ function openImage(imageToBeOpened, cardTitle) {
   openModal(imagePopup);
 };
 
-function renderLoading(isLoading, button) {
-  if (isLoading) {
-    button.textContent = 'Сохранение...';
-  }
-  else {
-    button.textContent = 'Сохранить';
-  };
+function handleDeleteButton(id, button) {
+  cardID = id;
+  cardDeleteButton = button;
+  openModal(deletePopup);
 };
 
 function renderCard(card, method = 'prepend') {
-  const parameters = {card, removeCard, likeCard, openImage, userID};
+  const parameters = {card, likeCard, openImage, userID, handleDeleteButton};
   const cardElement = createCard(parameters);
   cardsContainer[method](cardElement);
 }
@@ -69,55 +68,57 @@ popups.forEach(popup => {
 }); 
 
 function submitEditForm(evt) {
-  evt.preventDefault();
-  renderLoading(true, evt.submitter); // слишком сложно, может, когда-нибудь я смогу это разобрать... в любом случае, спасибо, так выглядит гораздо лаконичней
-  updateUserData(nameInput.value, descriptionInput.value)
-    .then(userData => {
-      nameOutput.textContent = userData.name;
-      descriptionOutput.textContent = userData.about;
-      closeModal(editPopup);
-    })
-    .catch(console.error)
-    .finally(() => {
-      renderLoading(false, evt.submitter);
-    });
+  function makeRequest() {
+    return updateUserData(nameInput.value, descriptionInput.value)
+      .then(userData => {
+        nameOutput.textContent = userData.name;
+        descriptionOutput.textContent = userData.about;
+        closeModal(editPopup);
+      });
+  };
+  handleSubmit(makeRequest, evt);
 };
 
 function submitNewCardForm(evt) {
-  evt.preventDefault();
-  const placeInput = newCardForm.elements.place_name;
-  const linkInput = newCardForm.elements.link;
-  renderLoading(true, evt.submitter);
-  postCard(placeInput.value, linkInput.value)
-    .then(newCard => {
-      renderCard(newCard);
-      closeModal(newCardPopup);
-      newCardForm.reset();
-    })
-    .catch(console.error)
-    .finally(() => {
-      renderLoading(false, evt.submitter);
-    });
+  function makeRequest() {
+    const placeInput = newCardForm.elements.place_name;
+    const linkInput = newCardForm.elements.link;
+    return postCard(placeInput.value, linkInput.value)
+      .then(newCard => {
+        renderCard(newCard);
+        closeModal(newCardPopup);
+      });
+  };
+  handleSubmit(makeRequest, evt);
 };
 
 function submitAvatarForm(evt) {
-  evt.preventDefault();
-  const avatarInput = avatarForm.elements.avatar;
-  renderLoading(true, evt.submitter);
-  updateAvatar(avatarInput.value)
-    .then(updatedUserData => {
-      profileImage.setAttribute('style', `background-image: url('${updatedUserData.avatar}');`);
-      closeModal(avatarPopup);
-      avatarForm.reset();
-    })
-    .catch(console.error)
-    .finally(() => {
-      renderLoading(false, evt.submitter);
-    });
+  function makeRequest() {
+    const avatarInput = avatarForm.elements.avatar;
+     return updateAvatar(avatarInput.value)
+      .then(updatedUserData => {
+        profileImage.setAttribute('style', `background-image: url('${updatedUserData.avatar}');`);
+        closeModal(avatarPopup);
+      });
+  };
+  handleSubmit(makeRequest, evt);
+};
+
+function removeCard() {
+  function makeRequest() {
+    return deleteCard(cardID)
+      .then(() => {
+        const cardToBeRemoved = cardDeleteButton.closest('.card');
+        cardToBeRemoved.remove();
+        closeModal(deletePopup);
+      })
+  };
+  handleSubmit(makeRequest, deletePopupButton, 'Удаление...');
 };
 
 editForm.addEventListener('submit', submitEditForm); 
 newCardForm.addEventListener('submit', submitNewCardForm);
 avatarForm.addEventListener('submit', submitAvatarForm);
+deletePopupButton.addEventListener('click', removeCard);
 
 enableValidation(validationConfig);

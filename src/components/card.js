@@ -1,16 +1,13 @@
-import { cardTemplate, deletePopup, deletePopupButton } from './constants.js';
-import { openModal, closeModal } from './modal.js';
-import { deleteCard, updateLike } from './api.js';
-
-let cardID, cardDeleteButton;
+import { cardTemplate } from './constants.js';
+import { updateLike } from './api.js';
 
 export function createCard(parameters) {
   // parameters constants
   const initialCard = parameters.card;
   const openCallback = parameters.openImage;
-  const removeCallback = parameters.removeCard;
   const likeCallback = parameters.likeCard;
   const userID = parameters.userID;
+  const handleCallback = parameters.handleDeleteButton;
   // element constants
   const cardElement = cardTemplate.querySelector('.card').cloneNode(true);
   const cardImage = cardElement.querySelector('.card__image');
@@ -28,10 +25,7 @@ export function createCard(parameters) {
   // removeCallback usage
   if (initialCard.owner._id === userID) {
     deleteButton.addEventListener('click', () => {
-      cardID = initialCard._id;
-      cardDeleteButton = deleteButton;
-      openModal(deletePopup);
-      deletePopupButton.addEventListener('click', removeCallback);
+      handleCallback(initialCard._id, deleteButton);
     });
   }
   else {
@@ -50,22 +44,8 @@ export function createCard(parameters) {
   return cardElement;
 };
 
-export function removeCard(evt) {
-  deletePopupButton.textContent = "Удаление...";
-  deleteCard(cardID)
-    .then(() => {
-      const cardToBeRemoved = cardDeleteButton.closest('.card');
-      cardToBeRemoved.remove();
-      closeModal(deletePopup);
-    })
-    .catch(console.error)
-    .finally(() => {
-      deletePopupButton.textContent = "Да";
-    });
-};
-
 export function likeCard(buttonToBeChanged, counterToBeChanged) {
-  const method = buttonToBeChanged.classList.contains("card__like-button_is-active")
+  const method = buttonToBeChanged.classList.contains('card__like-button_is-active')
     ? 'DELETE'
     : 'PUT'
   updateLike(cardID, method)
