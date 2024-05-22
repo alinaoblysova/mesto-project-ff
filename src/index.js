@@ -113,7 +113,7 @@ function removeCard() {
         closeModal(deletePopup);
       })
   };
-  handleSubmit(makeRequest, deletePopupButton, 'Удаление...');
+  handleSubmit(makeRequest, '', 'Удаление...', deletePopupButton);
 };
 
 editForm.addEventListener('submit', submitEditForm); 

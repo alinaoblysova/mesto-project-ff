@@ -7,12 +7,12 @@ export function renderLoading(isLoading, button, buttonText, loadingText) {
   };
 };
 
-export function handleSubmit(request, evt, loadingText = 'Сохранение...') {
-  const evtIsNotButton = typeof evt === 'object';
+export function handleSubmit(request, evt, loadingText = 'Сохранение...', button = '') {
+  const evtIsNotButton = evt !== '';
   if (evtIsNotButton) {
     evt.preventDefault();
   };
-  const submitButton = evtIsNotButton ? evt.submitter : evt;
+  const submitButton = evtIsNotButton ? evt.submitter : button;
   const initialText = submitButton.textContent;
   renderLoading(true, submitButton, initialText, loadingText);
   request()
