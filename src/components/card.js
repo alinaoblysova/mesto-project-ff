@@ -1,6 +1,8 @@
 import { cardTemplate } from './constants.js';
 import { updateLike } from './api.js';
 
+let cardID;
+
 export function createCard(parameters) {
   // parameters constants
   const initialCard = parameters.card;
