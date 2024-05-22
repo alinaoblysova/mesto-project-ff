@@ -8,13 +8,11 @@ export function renderLoading(isLoading, button, buttonText, loadingText) {
 };
 
 export function handleSubmit(request, evt, loadingText = 'Сохранение...') {
-  const evtIsNotButton = !evt.classList.contains('button');
+  const evtIsNotButton = typeof evt === 'object';
   if (evtIsNotButton) {
     evt.preventDefault();
   };
-  const submitButton = evtIsNotButton
-    ? evt.submitter 
-    : evt;
+  const submitButton = evtIsNotButton ? evt.submitter : evt;
   const initialText = submitButton.textContent;
   renderLoading(true, submitButton, initialText, loadingText);
   request()
